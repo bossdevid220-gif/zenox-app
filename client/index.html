@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>BOSS ZENOX - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0618;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 60%);
+        }
+        .login-card {
+            background: rgba(26, 10, 62, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 40px 32px 32px;
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            box-shadow: 0 0 60px rgba(139, 92, 246, 0.05);
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8B5CF6, #6D28D9, #4F46E5, #6D28D9, #8B5CF6);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+            border-radius: 32px 32px 0 0;
+        }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+        .brand-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 22px; color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+        }
+        .brand-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900; font-size: 22px; color: #fff;
+            letter-spacing: 2px; text-transform: uppercase;
+        }
+        .brand-text h1 span { background: linear-gradient(135deg, #8B5CF6, #4F46E5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .brand-text .sub { font-size: 10px; color: #7c6ba0; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+        .version-badge { margin-left: auto; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.2); padding: 4px 14px; border-radius: 20px; font-size: 9px; font-weight: 800; color: #8B5CF6; letter-spacing: 1px; }
+
+        .welcome-section { margin-bottom: 28px; }
+        .welcome-section h2 { font-size: 28px; font-weight: 900; color: #fff; line-height: 1.1; text-transform: uppercase; }
+        .welcome-section h2 span { background: linear-gradient(135deg, #8B5CF6, #4F46E5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .welcome-section p { font-size: 13px; color: #7c6ba0; margin-top: 6px; }
+
+        .device-box {
+            background: rgba(255,255,255,0.03);
+            border: 1.5px solid rgba(139, 92, 246, 0.12);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .device-box:hover { border-color: rgba(139, 92, 246, 0.3); background: rgba(255,255,255,0.05); }
+        .device-box .icon { font-size: 18px; }
+        .device-box .label { font-size: 9px; font-weight: 700; color: #5b4a7a; text-transform: uppercase; letter-spacing: 1px; }
+        .device-box .id { font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 700; color: #fff; background: rgba(139, 92, 246, 0.08); padding: 4px 12px; border-radius: 6px; }
+        .device-box .hint { font-size: 8px; color: #3d2d5a; margin-left: auto; font-weight: 700; text-transform: uppercase; }
+        .device-box.copied { border-color: #10b981; }
+        .device-box.copied .hint { color: #10b981; }
+
+        .input-group { margin-bottom: 14px; }
+        .input-group label { display: block; font-size: 10px; font-weight: 700; color: #5b4a7a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .input-wrapper {
+            display: flex; align-items: center;
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(139, 92, 246, 0.12);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        .input-wrapper:focus-within { border-color: #8B5CF6; box-shadow: 0 0 30px rgba(139, 92, 246, 0.06); }
+        .input-wrapper .prefix { padding: 0 0 0 14px; font-size: 14px; color: #5b4a7a; }
+        .input-wrapper input {
+            width: 100%; padding: 14px 10px 14px 8px;
+            background: transparent; border: none; color: #fff;
+            font-size: 14px; font-weight: 600; letter-spacing: 1px;
+            font-family: 'Inter', sans-serif;
+        }
+        .input-wrapper input:focus { outline: none; }
+        .toggle-vis { padding: 0 14px; background: none; border: none; color: #5b4a7a; cursor: pointer; font-size: 15px; }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 11px; font-weight: 700; color: #ef4444;
+            margin-bottom: 14px;
+            display: none;
+            align-items: center; gap: 8px;
+        }
+        .error-msg.show { display: flex; }
+
+        .login-btn {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+            border: none; border-radius: 14px;
+            color: #fff; font-size: 14px; font-weight: 900;
+            letter-spacing: 2px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(139, 92, 246, 0.35); }
+        .login-btn:active { transform: scale(0.97); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .login-btn .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        .login-btn.loading .spinner { display: block; }
+        .login-btn.loading .btn-text { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .footer {
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            margin-top: 20px; padding-top: 16px;
+            border-top: 1px solid rgba(139, 92, 246, 0.06);
+        }
+        .footer .dot { width: 5px; height: 5px; border-radius: 50%; background: #10b981; animation: pulseDot 2s infinite; }
+        @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .footer span { font-size: 9px; color: #3d2d5a; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+
+        .admin-link {
+            position: fixed; bottom: 20px; right: 20px;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            border-radius: 50%; width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            color: #3d2d5a; font-size: 16px; cursor: pointer;
+            transition: all 0.3s; text-decoration: none; z-index: 100;
+        }
+        .admin-link:hover { background: rgba(139, 92, 246, 0.15); border-color: #8B5CF6; color: #8B5CF6; transform: scale(1.05); }
+
+        @media (max-width: 480px) {
+            .login-card { padding: 28px 18px 24px; border-radius: 24px; }
+            .brand-text h1 { font-size: 18px; }
+            .brand-icon { width: 48px; height: 48px; font-size: 18px; }
+            .welcome-section h2 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="brand">
+        <div class="brand-icon">BZ</div>
+        <div class="brand-text">
+            <h1>BOSS <span>ZENOX</span></h1>
+            <div class="sub">Secure Access Portal</div>
+        </div>
+        <div class="version-badge">V2.0</div>
+    </div>
+
+    <div class="welcome-section">
+        <h2>Welcome<br><span>Back</span></h2>
+        <p>Enter your credentials to access the secure dashboard</p>
+    </div>
+
+    <div class="device-box" id="deviceBox" onclick="copyDeviceId()">
+        <span class="icon">📱</span>
+        <div>
+            <div class="label">Device ID</div>
+            <div class="id" id="deviceIdDisplay">---</div>
+        </div>
+        <span class="hint" id="copyHint">COPY</span>
+    </div>
+
+    <div class="input-group">
+        <label><i class="fas fa-key"></i> Access Key</label>
+        <div class="input-wrapper">
+            <span class="prefix">🔒</span>
+            <input type="password" id="accessKey" placeholder="Enter your access key" autocomplete="off" />
+            <button class="toggle-vis" onclick="toggleVisibility()">👁</button>
+        </div>
+    </div>
+
+    <div class="error-msg" id="errorMsg">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorText">Invalid access key</span>
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="handleLogin()">
+        <span class="btn-text"><i class="fas fa-shield-alt"></i> Verify & Access</span>
+        <div class="spinner"></div>
+    </button>
+
+    <div class="footer">
+        <span class="dot"></span>
+        <span>Secure Connection</span>
+        <span>•</span>
+        <span>Encrypted</span>
+    </div>
+</div>
+
+<a href="admin.html" class="admin-link" title="Admin Panel">⚙</a>
+
+<script>
+    const API_URL = 'http://localhost:5000/api';
+
+    function getDeviceId() {
+        let id = sessionStorage.getItem('zenox_device_id');
+        if (!id) {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let newId = 'ZENOX-V1-';
+            for (let i = 0; i < 6; i++) newId += chars[Math.floor(Math.random() * chars.length)];
+            id = newId;
+            sessionStorage.setItem('zenox_device_id', id);
+        }
+        return id;
+    }
+
+    const deviceId = getDeviceId();
+    document.getElementById('deviceIdDisplay').textContent = deviceId;
+
+    function copyDeviceId() {
+        navigator.clipboard.writeText(deviceId).then(() => {
+            const box = document.getElementById('deviceBox');
+            const hint = document.getElementById('copyHint');
+            box.classList.add('copied');
+            hint.textContent = '✓ COPIED!';
+            setTimeout(() => { box.classList.remove('copied'); hint.textContent = 'COPY'; }, 2000);
+        });
+    }
+
+    function toggleVisibility() {
+        const input = document.getElementById('accessKey');
+        const btn = document.querySelector('.toggle-vis');
+        if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+        else { input.type = 'password'; btn.textContent = '👁'; }
+    }
+
+    async function handleLogin() {
+        const key = document.getElementById('accessKey').value.trim();
+        const errorMsg = document.getElementById('errorMsg');
+        const errorText = document.getElementById('errorText');
+        const loginBtn = document.getElementById('loginBtn');
+
+        if (!key) { errorText.textContent = 'Please enter your access key'; errorMsg.classList.add('show'); return; }
+        errorMsg.classList.remove('show');
+        loginBtn.classList.add('loading');
+        loginBtn.disabled = true;
+
+        try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deviceId, key })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                const errors = {
+                    'INVALID_KEY': 'Invalid access key. Please check and try again.',
+                    'KEY_EXPIRED': 'This access key has expired. Contact admin.',
+                    'KEY_USAGE_LIMIT_REACHED': 'This key has reached its usage limit.',
+                    'TOO_MANY_ATTEMPTS': 'Too many attempts. Try again in 15 minutes.',
+                    'MISSING_FIELDS': 'All fields are required.'
+                };
+                errorText.textContent = errors[data.error] || 'Access denied. Invalid credentials.';
+                errorMsg.classList.add('show');
+                return;
+            }
+            localStorage.setItem('zenox_token', data.token);
+            localStorage.setItem('zenox_device_id', data.deviceId);
+            window.location.href = 'dashboard.html';
+        } catch {
+            errorText.textContent = 'Network error. Please check your connection.';
+            errorMsg.classList.add('show');
+        } finally {
+            loginBtn.classList.remove('loading');
+            loginBtn.disabled = false;
+        }
+    }
+
+    document.getElementById('accessKey').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+
+    (async function checkSession() {
+        const token = localStorage.getItem('zenox_token');
+        if (!token) return;
+        try {
+            const response = await fetch(`${API_URL}/auth/verify`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.valid) window.location.href = 'dashboard.html';
+        } catch {}
+    })();
+</script>
+
+</body>
+</html>
