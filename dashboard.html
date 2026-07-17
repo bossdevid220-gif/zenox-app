@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>BOSS ZENOX - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0618; font-family: 'Inter', sans-serif; color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(139,92,246,0.15); margin-bottom: 24px; }
+        .header h1 { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #8B5CF6; letter-spacing: 2px; }
+        .header h1 span { color: #fff; }
+        .logout-btn { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #ef4444; padding: 6px 16px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .logout-btn:hover { background: rgba(239,68,68,0.2); }
+        .card { background: rgba(26,10,62,0.8); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; border: 1px solid rgba(139,92,246,0.1); margin-bottom: 16px; text-align: center; }
+        .card h2 { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #8B5CF6; margin-bottom: 8px; }
+        .card p { color: #7c6ba0; font-size: 14px; }
+        .card .big { font-size: 36px; font-weight: 900; font-family: 'Orbitron', sans-serif; margin: 10px 0; color: #fff; }
+        .card .badge { display: inline-block; padding: 4px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+        .card .badge.pending { background: rgba(245,158,11,0.15); color: #f59e0b; border-color: rgba(245,158,11,0.2); }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .stat-box { background: rgba(26,10,62,0.8); backdrop-filter: blur(10px); border-radius: 14px; padding: 16px; border: 1px solid rgba(139,92,246,0.08); text-align: center; }
+        .stat-box .num { font-size: 24px; font-weight: 900; font-family: 'Orbitron', sans-serif; color: #8B5CF6; }
+        .stat-box .label { font-size: 10px; color: #5b4a7a; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(139,92,246,0.05); }
+        .history-item:last-child { border-bottom: none; }
+        .history-item .period { font-family: 'Orbitron', monospace; font-size: 12px; color: #7c6ba0; }
+        .history-item .result { font-weight: 700; font-size: 14px; }
+        .history-item .result.win { color: #10b981; }
+        .history-item .result.loss { color: #ef4444; }
+        .history-item .result.pending { color: #f59e0b; }
+        .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, #8B5CF6, #6D28D9); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(139,92,246,0.3); }
+        .footer { text-align: center; padding: 20px 0; font-size: 10px; color: #3d2d5a; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>BOSS <span>ZENOX</span></h1>
+        <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Exit</button>
+    </div>
+
+    <div class="card">
+        <h2>🔐 Welcome Back</h2>
+        <p id="deviceDisplay" style="font-family:Orbitron,monospace;font-size:12px;color:#8B5CF6;">---</p>
+        <div class="big" id="prediction">---</div>
+        <div id="statusBadge" class="badge pending">⏳ Waiting</div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box"><div class="num" id="streak">0</div><div class="label">Win Streak</div></div>
+        <div class="stat-box"><div class="num" id="total">0</div><div class="label">Total Rounds</div></div>
+    </div>
+
+    <button class="btn-primary" id="refreshBtn" onclick="updatePrediction()"><i class="fas fa-sync"></i> Update Prediction</button>
+
+    <div class="card" style="margin-top:16px;">
+        <h2>📊 History</h2>
+        <div id="historyList"><p style="color:#5b4a7a;font-size:13px;">Loading...</p></div>
+    </div>
+
+    <div class="footer">Powered by BOSS ZENOX v2.0</div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:5000/api';
+    const token = localStorage.getItem('zenox_token');
+    const deviceId = localStorage.getItem('zenox_device_id') || '---';
+    document.getElementById('deviceDisplay').textContent = deviceId;
+
+    async function checkAuth() {
+        if (!token) { window.location.href = 'index.html'; return false; }
+        try {
+            const res = await fetch(`${API_URL}/auth/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            if (!data.valid) { localStorage.removeItem('zenox_token'); window.location.href = 'index.html'; return false; }
+            return true;
+        } catch { localStorage.removeItem('zenox_token'); window.location.href = 'index.html'; return false; }
+    }
+
+    function logout() { localStorage.removeItem('zenox_token'); localStorage.removeItem('zenox_device_id'); window.location.href = 'index.html'; }
+
+    async function fetchGameData() {
+        try {
+            const res = await fetch(`https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${Date.now()}`);
+            const data = await res.json();
+            return data?.data?.list || [];
+        } catch { return []; }
+    }
+
+    async function updatePrediction() {
+        const btn = document.getElementById('refreshBtn');
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+        try {
+            const data = await fetchGameData();
+            if (data.length === 0) { document.getElementById('prediction').textContent = 'No Data'; return; }
+            const latest = data[0];
+            const number = parseInt(latest.number);
+            const recent = data.slice(0, 5).map(d => parseInt(d.number));
+            const avg = recent.reduce((a, b) => a + b, 0) / recent.length;
+            const prediction = avg > 4.5 ? 'SMALL' : 'BIG';
+            const isWin = (prediction === 'BIG' && number >= 5) || (prediction === 'SMALL' && number < 5);
+            document.getElementById('prediction').textContent = prediction;
+            const badge = document.getElementById('statusBadge');
+            if (isWin) { badge.textContent = '✅ WIN'; badge.className = 'badge'; }
+            else { badge.textContent = '❌ LOSS'; badge.className = 'badge pending'; }
+            updateHistory(data.slice(0, 10));
+        } catch { document.getElementById('prediction').textContent = 'Error'; }
+        finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync"></i> Update Prediction'; }
+    }
+
+    function updateHistory(data) {
+        const list = document.getElementById('historyList');
+        if (data.length === 0) { list.innerHTML = '<p style="color:#5b4a7a;font-size:13px;">No history</p>'; return; }
+        let streak = 0, total = data.length;
+        list.innerHTML = data.map((item, index) => {
+            const num = parseInt(item.number);
+            const status = index === 0 ? 'win' : 'pending';
+            if (index === 0) streak++;
+            return `<div class="history-item">
+                <span class="period">#${item.issueNumber || item.period}</span>
+                <span class="result ${status}">${num} ${index === 0 ? '✅' : '⏳'}</span>
+            </div>`;
+        }).join('');
+        document.getElementById('streak').textContent = streak;
+        document.getElementById('total').textContent = total;
+    }
+
+    (async function init() {
+        if (!await checkAuth()) return;
+        await updatePrediction();
+        setInterval(updatePrediction, 60000);
+    })();
+</script>
+</body>
+</html>
