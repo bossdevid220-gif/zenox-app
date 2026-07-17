@@ -14,6 +14,15 @@ const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'ZENOX_ULTRA_SECURE_KEY';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@Zenox2026';
 
+// ============ SERVE STATIC FILES (CLIENT) ============
+// આ client ફોલ્ડરની બધી ફાઇલો serve કરે છે
+app.use(express.static(path.join(__dirname, '../client')));
+
+// Root URL (/) પર index.html ખોલે છે
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/index.html'));
+});
+
 // ============ DATA STORE ============
 const DATA_FILE = path.join(__dirname, 'data', 'users.json');
 
@@ -47,7 +56,7 @@ app.use(helmet({
 app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json());
 
-// Rate Limiting
+// Rate Limiting - 100 requests per 15 minutes
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -254,4 +263,5 @@ app.get('/health', (req, res) => {
 // ============ START SERVER ============
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🔐 BOSS ZENOX Server running on port ${PORT}`);
+    console.log(`📱 https://zenox-app.onrender.com`);
 });
